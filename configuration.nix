@@ -63,16 +63,13 @@
   services.gvfs.enable                = true;
   services.gnome.gnome-keyring.enable = true;
   services.udisks2.enable             = true;
-  fonts.packages = with pkgs; [
-    iosevka
-  ];
+  fonts.packages = [ pkgs.iosevka ];
   fonts.fontconfig.defaultFonts.monospace = [ "Iosevka" ];
   fonts.fontconfig.defaultFonts.sansSerif = [ "Iosevka" ];
-
   swapDevices = [{
     device   = "/var/lib/swapfile";
-    size     = 8 * 1024;    # 8 GiB in MiB
-    priority = 0;            # lower than zram (priority 5) — overflow only
+    size     = 8192;
+    priority = 0;
   }];
   zramSwap.enable = true;
   environment.variables.QT_QPA_PLATFORMTHEME = lib.mkForce "gtk2";
@@ -94,7 +91,6 @@
     swaybg
     hyprlock
     fuzzel
-    eza
     wl-clipboard
     wiremix
     wireplumber
@@ -108,9 +104,7 @@
     udiskie
     keepassxc
     imv
-    mpv
     zathura
-    yazi
   ];
   home-manager.users.shaonix = {
     home.stateVersion = "26.05";
@@ -171,10 +165,10 @@
           }
           default-column-width { proportion 0.5; }
           struts {
-              left   8
-              right  8
-              top    8
-              bottom 8
+              left   9
+              right  9
+              top    9
+              bottom 9
           }
           focus-ring {
               width 3
@@ -193,15 +187,7 @@
           clip-to-geometry true
       }
       window-rule {
-          match app-id="org.gnome.Nautilus"
-          open-floating true
-      }
-      window-rule {
           match app-id="xdg-desktop-portal-gtk"
-          open-floating true
-      }
-      window-rule {
-          match app-id="nm-connection-editor"
           open-floating true
       }
       window-rule {
@@ -270,27 +256,6 @@ programs.alacritty = {
       settings.theme = "papercolor-light";
       extraPackages = [ pkgs.nixd ];
     };
-    home.file.".config/yazi/yazi.toml".text = ''
-      [mgr]
-      show_hidden = true
-      [opener]
-      edit     = [{ run = 'alacritty -e hx "$@"', orphan = true }]
-      image    = [{ run = 'imv "$@"', orphan = true, for = "unix" }]
-      video    = [{ run = 'mpv "$@"', orphan = true, for = "unix" }]
-      audio    = [{ run = 'mpv --force-window --no-resume-playback "$@"', orphan = true }]
-      pdf      = [{ run = 'zathura "$@"', orphan = true, for = "unix" }]
-      browser  = [{ run = 'firefox "$@"', orphan = true, for = "unix" }]
-      [open]
-      rules = [
-        { mime = "image/*",         use = "image" },
-        { mime = "video/*",         use = "video" },
-        { mime = "audio/*",         use = "audio" },
-        { mime = "text/*",          use = "edit" },
-        { mime = "application/pdf", use = "pdf" },
-        { mime = "text/html",       use = "browser" },
-        { mime = "application/xhtml+xml", use = "browser" },
-      ]
-    '';
   };
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree          = true;
