@@ -64,8 +64,8 @@
   services.gnome.gnome-keyring.enable = true;
   services.udisks2.enable             = true;
   fonts.packages = [ pkgs.iosevka ];
-  fonts.fontconfig.defaultFonts.monospace = [ "Iosevka" ];
-  fonts.fontconfig.defaultFonts.sansSerif = [ "Iosevka" ];
+  fonts.fontconfig.defaultFonts.monospace = [ "Iosevka Semibold" ];
+  fonts.fontconfig.defaultFonts.sansSerif = [ "Iosevka Semibold" ];
   swapDevices = [{
     device   = "/var/lib/swapfile";
     size     = 8192;
