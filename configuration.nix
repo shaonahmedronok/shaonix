@@ -23,6 +23,12 @@
     extraPackages = [ pkgs.intel-media-driver ];
   };
   hardware.cpu.intel.updateMicrocode = true;
+  hardware.bluetooth = {
+    enable      = true;
+    powerOnBoot = true;
+  };
+  hardware.enableRedistributableFirmware = true;
+  services.blueman.enable = true;
   hardware.i2c.enable                = true;
   services.pipewire = {
     enable             = true;
@@ -106,6 +112,7 @@
     keepassxc
     imv
     zathura
+    usbutils
   ];
   home-manager.users.shaonix = {
     home.stateVersion = "26.05";
