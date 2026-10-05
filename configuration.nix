@@ -85,6 +85,7 @@
     nautilus
     git
     firefox
+    google-chrome
     xwayland-satellite
     qt5.qtwayland
     qt6.qtwayland
