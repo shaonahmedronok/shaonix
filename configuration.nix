@@ -113,7 +113,9 @@
     imv
     zathura
     usbutils
-  ];
+    bluez        # gives you bluetoothctl, btmon, hcitool, sdptool
+    bluez-tools  # bt-device, bt-adapter, bt-obex (file transfer!)
+];
   home-manager.users.shaonix = {
     home.stateVersion = "26.05";
     programs.home-manager.enable = true;
