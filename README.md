@@ -11,7 +11,6 @@
 
 **First time on a new machine:**
 
-```bash
 # Install NixOS minimal, then generate hardware config
 sudo nixos-generate-config
 
@@ -24,4 +23,3 @@ sudo nix flake update
 sudo nixos-rebuild switch --flake /etc/nixos#shaonix
 nh clean all --keep 3
 
----
