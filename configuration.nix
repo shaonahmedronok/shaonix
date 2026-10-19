@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 {
   boot.loader.systemd-boot.enable      = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -29,6 +29,8 @@
   };
   hardware.enableRedistributableFirmware = true;
   services.blueman.enable = true;
+  services.upower.enable = true;
+  services.power-profiles-daemon.enable = true;
   hardware.i2c.enable                = true;
   services.pipewire = {
     enable             = true;
@@ -78,6 +80,10 @@
     priority = 0;
   }];
   zramSwap.enable = true;
+  systemd.tmpfiles.rules = [
+    "d /home/shaonix/Wallpapers 0755 shaonix users -"
+    "d /home/shaonix/screenshots 0755 shaonix users -"
+  ];
   environment.variables.QT_QPA_PLATFORMTHEME = lib.mkForce "gtk2";
   environment.sessionVariables = {
     NIXOS_OZONE_WL                     = "1";
@@ -95,7 +101,6 @@
     xwayland-satellite
     qt5.qtwayland
     qt6.qtwayland
-    swaybg
     hyprlock
     fuzzel
     wl-clipboard
@@ -110,6 +115,7 @@
     nh
     udiskie
     keepassxc
+    evtest
     imv
     zathura
     usbutils
@@ -117,6 +123,140 @@
     bluez-tools  # bt-device, bt-adapter, bt-obex (file transfer!)
 ];
   home-manager.users.shaonix = {
+    imports = [ inputs.noctalia.homeModules.default ];
+    programs.noctalia = {
+      enable = true;
+      settings = {
+        theme = {
+          mode           = "light";
+          source         = "custom";
+          custom_palette = "Cream";
+        };
+        bar.default = {
+          margin_ends = 0;
+          margin_edge = 0;
+          end = [
+            "media"
+            "tray"
+            "notifications"
+            "clipboard"
+            "network"
+            "bluetooth"
+            "volume"
+            "brightness"
+            "battery"
+            "control-center"
+            "session"
+          ];
+        };
+        plugins.enabled = [
+          "noctalia/wallhaven"
+          "noctalia/world_clock"
+          "noctalia/timer"
+        ];
+        wallpaper = {
+          enabled = true;
+          directory = "/home/shaonix/Wallpapers";
+          default.path = "/etc/nixos/wallpaper.jpg";
+        };
+      };
+    };
+    xdg.configFile."noctalia/palettes/Cream.json".text = ''
+      {
+        "dark": {
+          "mPrimary": "#458588",
+          "mOnPrimary": "#FDF6E3",
+          "mSecondary": "#689D6A",
+          "mOnSecondary": "#FDF6E3",
+          "mTertiary": "#B16286",
+          "mOnTertiary": "#FDF6E3",
+          "mError": "#CC241D",
+          "mOnError": "#FDF6E3",
+          "mSurface": "#FDF6E3",
+          "mOnSurface": "#000000",
+          "mSurfaceVariant": "#EEE8D5",
+          "mOnSurfaceVariant": "#3C3836",
+          "mOutline": "#D9D3C3",
+          "mShadow": "#B8B2A2",
+          "mHover": "#E6DFC8",
+          "mOnHover": "#000000",
+          "terminal": {
+            "background": "#FDF6E3",
+            "foreground": "#000000",
+            "cursor": "#000000",
+            "cursorText": "#FDF6E3",
+            "selectionBg": "#D9D3C3",
+            "selectionFg": "#000000",
+            "normal": {
+              "black": "#000000",
+              "red": "#CC241D",
+              "green": "#98971A",
+              "yellow": "#D79921",
+              "blue": "#458588",
+              "magenta": "#B16286",
+              "cyan": "#689D6A",
+              "white": "#D9D3C3"
+            },
+            "bright": {
+              "black": "#555555",
+              "red": "#9D0006",
+              "green": "#79740E",
+              "yellow": "#B57614",
+              "blue": "#076678",
+              "magenta": "#8F3F71",
+              "cyan": "#427B58",
+              "white": "#EEE8D5"
+            }
+          }
+        },
+        "light": {
+          "mPrimary": "#458588",
+          "mOnPrimary": "#FDF6E3",
+          "mSecondary": "#689D6A",
+          "mOnSecondary": "#FDF6E3",
+          "mTertiary": "#B16286",
+          "mOnTertiary": "#FDF6E3",
+          "mError": "#CC241D",
+          "mOnError": "#FDF6E3",
+          "mSurface": "#FDF6E3",
+          "mOnSurface": "#000000",
+          "mSurfaceVariant": "#EEE8D5",
+          "mOnSurfaceVariant": "#3C3836",
+          "mOutline": "#D9D3C3",
+          "mShadow": "#B8B2A2",
+          "mHover": "#E6DFC8",
+          "mOnHover": "#000000",
+          "terminal": {
+            "background": "#FDF6E3",
+            "foreground": "#000000",
+            "cursor": "#000000",
+            "cursorText": "#FDF6E3",
+            "selectionBg": "#D9D3C3",
+            "selectionFg": "#000000",
+            "normal": {
+              "black": "#000000",
+              "red": "#CC241D",
+              "green": "#98971A",
+              "yellow": "#D79921",
+              "blue": "#458588",
+              "magenta": "#B16286",
+              "cyan": "#689D6A",
+              "white": "#D9D3C3"
+            },
+            "bright": {
+              "black": "#555555",
+              "red": "#9D0006",
+              "green": "#79740E",
+              "yellow": "#B57614",
+              "blue": "#076678",
+              "magenta": "#8F3F71",
+              "cyan": "#427B58",
+              "white": "#EEE8D5"
+            }
+          }
+        }
+      }
+    '';
     home.stateVersion = "26.05";
     programs.home-manager.enable = true;
     systemd.user.sessionVariables = {
@@ -212,13 +352,35 @@
           match app-id="imv"
           open-floating true
       }
+      window-rule {
+          match app-id="dev.noctalia.Noctalia"
+          open-floating true
+          default-column-width { fixed 1080; }
+          default-window-height { fixed 920; }
+      }
+      debug {
+          honor-xdg-activation-with-invalid-serial
+      }
+      screenshot-path "~/screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
       spawn-at-startup "udiskie" "-t"
-      spawn-at-startup "swaybg" "-i" "/etc/nixos/wallpaper.jpg" "-m" "fill"
+      spawn-at-startup "noctalia"
       spawn-at-startup "wlsunset" "-t" "4500" "-T" "4500"
       spawn-at-startup "xwayland-satellite"
       binds {
           Mod+Return { spawn "alacritty"; }
-          Mod+Space  { spawn "fuzzel"; }
+          Mod+Space  { spawn-sh "noctalia msg panel-toggle launcher"; }
+          Mod+D      { spawn "fuzzel"; }
+          Mod+S      { spawn-sh "noctalia msg panel-toggle control-center"; }
+          Mod+Comma  { spawn-sh "noctalia msg settings-toggle"; }
+          Mod+W      { spawn-sh "noctalia msg panel-toggle noctalia/wallhaven:browser"; }
+          Mod+Shift+W { spawn-sh "noctalia msg wallpaper-random"; }
+          Mod+T       { spawn-sh "noctalia msg panel-toggle noctalia/timer:panel"; }
+          Mod+Y       { spawn-sh "noctalia msg panel-toggle noctalia/world_clock:panel"; }
+          Alt+Tab    { spawn-sh "noctalia msg window-switcher hold"; }
+          Print      { screenshot; }
+          Ctrl+Print { screenshot-screen; }
+          Alt+Print  { screenshot-window; }
+          Mod+Shift+S { spawn "sh" "-c" "f=\"$HOME/screenshots/region-$(date +%F_%H-%M-%S).png\"; grim -g \"$(slurp)\" \"$f\" && wl-copy < \"$f\""; }
           Mod+B      { spawn "firefox"; }
           Mod+C         { close-window; }
           Mod+F         { maximize-column; }
@@ -239,9 +401,11 @@
           Mod+Shift+Down   { move-window-down-or-to-workspace-down; }
           Mod+Shift+Up     { move-window-up-or-to-workspace-up; }
           Mod+Shift+Right  { move-column-right; }
-          XF86AudioMute        { spawn "sh" "-c" "pactl set-sink-mute @DEFAULT_SINK@ toggle"; }
-          XF86AudioLowerVolume { spawn "sh" "-c" "pactl set-sink-volume @DEFAULT_SINK@ -2%"; }
-          XF86AudioRaiseVolume { spawn "sh" "-c" "pactl set-sink-volume @DEFAULT_SINK@ +2%"; }
+          XF86AudioMute        { spawn-sh "noctalia msg volume-mute"; }
+          XF86AudioLowerVolume { spawn-sh "noctalia msg volume-down"; }
+          XF86AudioRaiseVolume { spawn-sh "noctalia msg volume-up"; }
+          XF86MonBrightnessUp   { spawn-sh "noctalia msg brightness-up"; }
+          XF86MonBrightnessDown { spawn-sh "noctalia msg brightness-down"; }
           Mod+Shift+X { spawn "hyprlock"; }
           Mod+Shift+E { quit; }
       }
@@ -267,7 +431,11 @@ programs.alacritty = {
       extraPackages = [ pkgs.nixd ];
     };
   };
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    extra-substituters = [ "https://noctalia.cachix.org" ];
+    extra-trusted-public-keys = [ "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4=" ];
+  };
   nixpkgs.config.allowUnfree          = true;
   system.stateVersion = "26.05";
 }
