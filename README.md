@@ -25,6 +25,5 @@ git clone https://github.com/shaonahmedronok/shaonix /tmp/nixconf
 sudo nix flake update
 sudo nixos-rebuild switch --flake /etc/nixos#shaonix
 nh clean all --keep 3
-```
 
 ---
