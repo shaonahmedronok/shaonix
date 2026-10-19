@@ -12,34 +12,15 @@
 **First time on a new machine:**
 
 ```bash
-# 1. Install NixOS minimal, then generate hardware config
+# Install NixOS minimal, then generate hardware config
 sudo nixos-generate-config
 
-# 2. Clone repo
+# Clone repo
 git clone https://github.com/shaonahmedronok/shaonix /tmp/nixconf
 
-# 3. Copy config files into /etc/nixos (keep your own hardware-configuration.nix)
-sudo cp /tmp/nixconf/flake.nix /etc/nixos/
-sudo cp /tmp/nixconf/flake.lock /etc/nixos/
-sudo cp /tmp/nixconf/configuration.nix /etc/nixos/
-sudo cp /tmp/nixconf/wallpaper.jpg /etc/nixos/
-
-# 4. Rebuild
-sudo nixos-rebuild switch --flake /etc/nixos#shaonix
-```
-
-**Daily use (after any edit):**
+# Rebuild
 
 ```bash
-cd /etc/nixos
-# edit configuration.nix
-sudo nixos-rebuild switch --flake /etc/nixos#shaonix
-```
-
-**Monthly update:**
-
-```bash
-cd /etc/nixos
 sudo nix flake update
 sudo nixos-rebuild switch --flake /etc/nixos#shaonix
 nh clean all --keep 3
