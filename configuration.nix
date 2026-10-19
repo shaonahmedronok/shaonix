@@ -83,6 +83,7 @@
   systemd.tmpfiles.rules = [
     "d /home/shaonix/Wallpapers 0755 shaonix users -"
     "d /home/shaonix/screenshots 0755 shaonix users -"
+    "f /home/shaonix/.config/noctalia/nightlight.toml 0644 shaonix users - [nightlight]\\ntemperature_night = 3000\\n"
   ];
   environment.variables.QT_QPA_PLATFORMTHEME = lib.mkForce "gtk2";
   environment.sessionVariables = {
@@ -118,6 +119,22 @@
     evtest
     imv
     zathura
+
+      (pkgs.writeShellScriptBin "nl-adjust" ''
+      f="$HOME/.config/noctalia/nightlight.toml"
+      step=250; min=1500; max=5500
+      cur=$(${pkgs.gnugrep}/bin/grep -o '[0-9]\+' "$f" 2>/dev/null | head -n1)
+      cur=''${cur:-3000}
+      case "$1" in
+        warmer) new=$((cur - step)) ;;
+        cooler) new=$((cur + step)) ;;
+        *) exit 1 ;;
+      esac
+      [ "$new" -lt "$min" ] && new=$min
+      [ "$new" -gt "$max" ] && new=$max
+      printf '[nightlight]\ntemperature_night = %s\n' "$new" > "$f"
+    '')
+  
     usbutils
     bluez        # gives you bluetoothctl, btmon, hcitool, sdptool
     bluez-tools  # bt-device, bt-adapter, bt-obex (file transfer!)
@@ -144,10 +161,18 @@
             "bluetooth"
             "volume"
             "brightness"
+            "nightlight"
             "battery"
             "control-center"
             "session"
           ];
+        };
+          widget.nightlight = {
+          scroll_repeat = "steps";
+          actions = {
+            scroll_up = "exec /run/current-system/sw/bin/nl-adjust warmer";
+            scroll_down = "exec /run/current-system/sw/bin/nl-adjust cooler";
+          };
         };
         plugins.enabled = [
           "noctalia/wallhaven"
@@ -364,7 +389,6 @@
       screenshot-path "~/screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
       spawn-at-startup "udiskie" "-t"
       spawn-at-startup "noctalia"
-      spawn-at-startup "wlsunset" "-t" "4500" "-T" "4500"
       spawn-at-startup "xwayland-satellite"
       binds {
           Mod+Return { spawn "alacritty"; }
