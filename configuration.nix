@@ -29,6 +29,7 @@
   };
   hardware.enableRedistributableFirmware = true;
   services.blueman.enable = true;
+  programs.kdeconnect.enable = true;
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
   hardware.i2c.enable                = true;
@@ -282,6 +283,10 @@
         }
       }
     '';
+    services.kdeconnect = {
+      enable = true;
+      indicator = true;
+    };
     home.stateVersion = "26.05";
     programs.home-manager.enable = true;
     systemd.user.sessionVariables = {
@@ -452,7 +457,13 @@ programs.alacritty = {
       settings.editor.line-number        = "relative";
       settings.editor.clipboard-provider = "wayland";
       settings.theme = "papercolor-light";
-      extraPackages = [ pkgs.nixd ];
+      settings.editor.cursorline = true;
+      settings.editor.soft-wrap.enable = true;
+      settings.editor.end-of-line-diagnostics = "error";
+      settings.editor.inline-diagnostics.cursor-line = "hint";
+      settings.editor.cursor-shape = { insert = "bar"; normal = "block"; select = "underline"; };
+      settings.keys.normal.space."=" = ":format";
+      extraPackages = [ pkgs.nixd pkgs.nixfmt ];
     };
   };
   nix.settings = {
