@@ -6,6 +6,7 @@
   boot.kernelModules                   = [ "i2c-dev" ];
   networking.hostName              = "shaonix";
   networking.networkmanager.enable = true;
+  systemd.services.NetworkManager-wait-online.enable = false;
   networking.firewall.enable       = true;
   time.timeZone      = "Asia/Dhaka";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -20,7 +21,7 @@
   security.rtkit.enable          = true;
   hardware.graphics = {
     enable        = true;
-    extraPackages = [ pkgs.intel-media-driver ];
+    extraPackages = [ pkgs.intel-media-driver pkgs.intel-vaapi-driver ];
   };
   hardware.cpu.intel.updateMicrocode = true;
   hardware.bluetooth = {
@@ -37,6 +38,7 @@
     enable             = true;
     alsa.enable        = true;
     pulse.enable       = true;
+    jack.enable        = true;
     wireplumber.enable = true;
   };
   services.pipewire.wireplumber.extraConfig."99-default-sink" = {
@@ -72,7 +74,54 @@
   services.gvfs.enable                = true;
   services.gnome.gnome-keyring.enable = true;
   services.udisks2.enable             = true;
-  fonts.packages = [ pkgs.iosevka ];
+  # ---- extras merged from your pasted configs (adapted) ----
+  programs.dconf.enable = true;
+  environment.pathsToLink = [ "/share/thumbnailers" ];
+  services.dbus.packages = [ pkgs.sushi ];
+  programs.nix-ld = {
+    enable    = true;
+    libraries = with pkgs; [ stdenv.cc.cc zlib libusb1 util-linux fuse3 icu nss openssl curl expat vulkan-loader ];
+  };
+  services.journald.extraConfig = "SystemMaxUse=200M\nSystemMaxFiles=5";
+  boot.plymouth.enable = true;
+  boot.consoleLogLevel = 3;
+  boot.initrd.verbose  = false;
+  boot.kernelParams    = [ "quiet" "splash" "udev.log_priority=3" "rd.udev.log_level=3" ];
+  services.avahi = {
+    enable     = true;
+    nssmdns4   = true;
+  };
+  services.tailscale.enable = true;
+  programs.localsend = {
+    enable       = true;
+    openFirewall = true;
+  };
+  programs.obs-studio.enable = true;
+  programs.nh = {
+    enable = true;
+    clean = {
+      enable    = true;
+      extraArgs = "--keep-since 7d --keep 5";
+    };
+  };
+  nix.optimise.automatic = true;
+  services.printing.enable = true;
+  services.flatpak.enable  = true;
+  services.fstrim.enable   = true;
+  services.earlyoom.enable = true;
+  boot.tmp.cleanOnBoot     = true;
+  programs.fuse.userAllowOther = true;
+  programs.gnupg.agent.enable  = true;
+  networking.stevenblack.enable = true;
+  fonts.packages = [
+    pkgs.iosevka
+    pkgs.nerd-fonts.jetbrains-mono
+    pkgs.nerd-fonts.fira-mono
+    pkgs.corefonts
+    pkgs.noto-fonts
+    pkgs.noto-fonts-color-emoji
+    pkgs.liberation_ttf
+  ];
   fonts.fontconfig.defaultFonts.monospace = [ "Iosevka Semibold" ];
   fonts.fontconfig.defaultFonts.sansSerif = [ "Iosevka Semibold" ];
   swapDevices = [{
@@ -89,6 +138,7 @@
   environment.variables.QT_QPA_PLATFORMTHEME = lib.mkForce "gtk2";
   environment.sessionVariables = {
     NIXOS_OZONE_WL                     = "1";
+    _JAVA_AWT_WM_NONREPARENTING        = "1";
     XDG_CURRENT_DESKTOP                = "niri:GNOME";
     XDG_SESSION_TYPE                   = "wayland";
     XDG_SESSION_DESKTOP                = "niri";
@@ -120,6 +170,44 @@
     evtest
     imv
     zathura
+    scrcpy
+    android-tools
+    sushi
+    file-roller
+    loupe
+    celluloid
+    mpv
+    pwvucontrol
+    pavucontrol
+    playerctl
+    btop
+    fastfetch
+    ripgrep
+    fd
+    bat
+    eza
+    fzf
+    jq
+    ffmpeg
+    ffmpegthumbnailer
+    yt-dlp
+    zip
+    unzip
+    lsof
+    libnotify
+    curl
+    wget
+    vulkan-tools
+    winetricks
+    wineWow64Packages.stable
+    (bottles.override { removeWarningPopup = true; })
+    libreoffice-fresh
+    amberol
+    transmission_4-gtk
+    rclone
+    restic
+    remmina
+    freerdp
 
       (pkgs.writeShellScriptBin "nl-adjust" ''
       f="$HOME/.config/noctalia/nightlight.toml"
@@ -180,6 +268,34 @@
           "noctalia/world_clock"
           "noctalia/timer"
         ];
+        idle.behavior.screen-off = {
+          timeout = 600;
+          command = "noctalia:dpms-off";
+          resume_command = "noctalia:dpms-on";
+        };
+        idle.behavior.lock = {
+          enabled = true;
+          timeout = 660;
+          command = "hyprlock";
+        };
+        shell = {
+          time_format  = "{:%-I:%M %p}";
+          polkit_agent = true;
+          launcher.default_view = "all";
+          panel = {
+            launcher_sort_by_usage = false;
+            transparency_mode      = "soft";
+          };
+          screen_corners = {
+            enabled = true;
+            size    = 24;
+          };
+        };
+        widget.clock = {
+          format         = "{:%-I:%M %p}";
+          tooltip_format = "{:%A, %B %d, %Y}";
+        };
+        osd.position = "bottom_center";
         wallpaper = {
           enabled = true;
           directory = "/home/shaonix/Wallpapers";
@@ -187,6 +303,102 @@
         };
       };
     };
+    xdg.configFile."noctalia/palettes/Gruvbox.json".text = ''
+      {
+        "dark": {
+          "mPrimary": "#b8bb26",
+          "mOnPrimary": "#282828",
+          "mSecondary": "#fabd2f",
+          "mOnSecondary": "#282828",
+          "mTertiary": "#83a598",
+          "mOnTertiary": "#282828",
+          "mError": "#fb4934",
+          "mOnError": "#282828",
+          "mSurface": "#282828",
+          "mOnSurface": "#fbf1c7",
+          "mSurfaceVariant": "#3c3836",
+          "mOnSurfaceVariant": "#ebdbb2",
+          "mOutline": "#57514e",
+          "mShadow": "#282828",
+          "mHover": "#83a598",
+          "mOnHover": "#282828",
+          "terminal": {
+            "background": "#282828",
+            "foreground": "#ebdbb2",
+            "cursor": "#ebdbb2",
+            "cursorText": "#282828",
+            "selectionBg": "#3c3836",
+            "selectionFg": "#ebdbb2",
+            "normal": {
+              "black": "#282828",
+              "red": "#cc241d",
+              "green": "#98971a",
+              "yellow": "#d79921",
+              "blue": "#458588",
+              "magenta": "#b16286",
+              "cyan": "#689d6a",
+              "white": "#a89984"
+            },
+            "bright": {
+              "black": "#928374",
+              "red": "#fb4934",
+              "green": "#b8bb26",
+              "yellow": "#fabd2f",
+              "blue": "#83a598",
+              "magenta": "#d3869b",
+              "cyan": "#8ec07c",
+              "white": "#ebdbb2"
+            }
+          }
+        },
+        "light": {
+          "mPrimary": "#b8bb26",
+          "mOnPrimary": "#282828",
+          "mSecondary": "#fabd2f",
+          "mOnSecondary": "#282828",
+          "mTertiary": "#83a598",
+          "mOnTertiary": "#282828",
+          "mError": "#fb4934",
+          "mOnError": "#282828",
+          "mSurface": "#282828",
+          "mOnSurface": "#fbf1c7",
+          "mSurfaceVariant": "#3c3836",
+          "mOnSurfaceVariant": "#ebdbb2",
+          "mOutline": "#57514e",
+          "mShadow": "#282828",
+          "mHover": "#83a598",
+          "mOnHover": "#282828",
+          "terminal": {
+            "background": "#282828",
+            "foreground": "#ebdbb2",
+            "cursor": "#ebdbb2",
+            "cursorText": "#282828",
+            "selectionBg": "#3c3836",
+            "selectionFg": "#ebdbb2",
+            "normal": {
+              "black": "#282828",
+              "red": "#cc241d",
+              "green": "#98971a",
+              "yellow": "#d79921",
+              "blue": "#458588",
+              "magenta": "#b16286",
+              "cyan": "#689d6a",
+              "white": "#a89984"
+            },
+            "bright": {
+              "black": "#928374",
+              "red": "#fb4934",
+              "green": "#b8bb26",
+              "yellow": "#fabd2f",
+              "blue": "#83a598",
+              "magenta": "#d3869b",
+              "cyan": "#8ec07c",
+              "white": "#ebdbb2"
+            }
+          }
+        }
+      }
+    '';
     xdg.configFile."noctalia/palettes/Cream.json".text = ''
       {
         "dark": {
@@ -283,6 +495,21 @@
         }
       }
     '';
+    xdg.autostart.enable = true;
+    dconf.settings."org/gnome/desktop/interface".color-scheme = "prefer-light";
+    gtk = {
+      enable    = true;
+      iconTheme = {
+        name    = "Papirus";
+        package = pkgs.papirus-icon-theme;
+      };
+    };
+    home.pointerCursor = {
+      package    = pkgs.bibata-cursors;
+      name       = "Bibata-Modern-Ice";
+      size       = 24;
+      gtk.enable = true;
+    };
     services.kdeconnect = {
       enable = true;
       indicator = true;
@@ -327,9 +554,10 @@
               repeat-rate  50
           }
           focus-follows-mouse
+          warp-mouse-to-focus
       }
       cursor {
-          xcursor-theme "Adwaita"
+          xcursor-theme "Bibata-Modern-Ice"
           xcursor-size 24
       }
       output "HDMI-A-2" {
@@ -362,6 +590,9 @@
           }
       }
       prefer-no-csd
+      clipboard {
+          disable-primary
+      }
       window-rule {
           geometry-corner-radius 8
           clip-to-geometry true
@@ -435,6 +666,36 @@
           XF86AudioRaiseVolume { spawn-sh "noctalia msg volume-up"; }
           XF86MonBrightnessUp   { spawn-sh "noctalia msg brightness-up"; }
           XF86MonBrightnessDown { spawn-sh "noctalia msg brightness-down"; }
+          Mod+1       { focus-workspace 1; }
+          Mod+Shift+1 { move-column-to-workspace 1; }
+          Mod+2       { focus-workspace 2; }
+          Mod+Shift+2 { move-column-to-workspace 2; }
+          Mod+3       { focus-workspace 3; }
+          Mod+Shift+3 { move-column-to-workspace 3; }
+          Mod+4       { focus-workspace 4; }
+          Mod+Shift+4 { move-column-to-workspace 4; }
+          Mod+5       { focus-workspace 5; }
+          Mod+Shift+5 { move-column-to-workspace 5; }
+          Mod+6       { focus-workspace 6; }
+          Mod+Shift+6 { move-column-to-workspace 6; }
+          Mod+7       { focus-workspace 7; }
+          Mod+Shift+7 { move-column-to-workspace 7; }
+          Mod+8       { focus-workspace 8; }
+          Mod+Shift+8 { move-column-to-workspace 8; }
+          Mod+9       { focus-workspace 9; }
+          Mod+Shift+9 { move-column-to-workspace 9; }
+          Mod+Tab        { toggle-overview; }
+          Mod+Ctrl+H     { set-column-width "-5%"; }
+          Mod+Ctrl+L     { set-column-width "+5%"; }
+          Mod+Ctrl+J     { set-window-height "-5%"; }
+          Mod+Ctrl+K     { set-window-height "+5%"; }
+          Mod+WheelScrollDown      { focus-column-left; }
+          Mod+WheelScrollUp        { focus-column-right; }
+          Mod+Ctrl+WheelScrollDown { focus-workspace-down; }
+          Mod+Ctrl+WheelScrollUp   { focus-workspace-up; }
+          Mod+Ctrl+T     { spawn-sh "noctalia msg plugin noctalia/timer:timer all start 25"; }
+          Mod+Shift+T    { spawn-sh "noctalia msg plugin noctalia/timer:timer all cancel"; }
+          Mod+Shift+Slash { show-hotkey-overlay; }
           Mod+Shift+X { spawn "hyprlock"; }
           Mod+Shift+E { quit; }
       }
@@ -468,6 +729,8 @@ programs.alacritty = {
   };
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
+    download-buffer-size  = 524288000;
+    warn-dirty            = false;
     extra-substituters = [ "https://noctalia.cachix.org" ];
     extra-trusted-public-keys = [ "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4=" ];
   };
