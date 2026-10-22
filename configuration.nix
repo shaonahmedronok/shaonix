@@ -254,8 +254,13 @@
         bar.default = {
           margin_ends = 0;
           margin_edge = 0;
+          start = [
+            "launcher"
+            "wallpaper"
+            "workspaces"
+            "audio-vis"
+          ];
           end = [
-            "media"
             "tray"
             "notifications"
             "clipboard"
@@ -304,11 +309,34 @@
             size    = 24;
           };
         };
+        widget.audio-vis = {
+          type           = "audio_visualizer";
+          width          = 64;
+          bands          = 20;
+          show_when_idle = true;
+          actions = {
+            left = "exec noctalia msg panel-toggle control-center media";
+          };
+        };
         widget.clock = {
           format         = "{:%-I:%M %p}";
           tooltip_format = "{:%A, %B %d, %Y}";
         };
         osd.position = "bottom_center";
+        dock = {
+          enabled       = true;
+          position      = "bottom";
+          show_running  = true;
+          auto_hide     = true;
+          reserve_space = false;
+          pinned = [
+            "firefox"
+            "org.gnome.Nautilus"
+            "vesktop"
+            "Alacritty"
+            "io.github.celluloid_player.Celluloid"
+          ];
+        };
         wallpaper = {
           enabled = true;
           directory = "/home/shaonix/Wallpapers";
@@ -653,6 +681,7 @@
           Mod+Shift+W { spawn-sh "noctalia msg wallpaper-random"; }
           Mod+T       { spawn-sh "noctalia msg panel-toggle noctalia/timer:panel"; }
           Mod+Y       { spawn-sh "noctalia msg panel-toggle noctalia/world_clock:panel"; }
+          Mod+Alt+D   { spawn-sh "noctalia msg dock-toggle"; }
           Alt+Tab    { spawn-sh "noctalia msg window-switcher hold"; }
           Print      { screenshot; }
           Ctrl+Print { screenshot-screen; }
