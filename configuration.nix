@@ -47,6 +47,12 @@
       actions  = { update-props = { "priority.session" = 2000; }; };
     }];
   };
+  services.pipewire.wireplumber.extraConfig."51-bluez" = {
+  "monitor.bluez.rules" = [{
+     matches = [{ "node.name" = "~bluez_output.*"; }];
+     actions  = { update-props = { "priority.session" = 3000; }; };
+    }];
+  };
   programs.niri.enable     = true;
   programs.xwayland.enable = true;
   xdg.portal = {
@@ -110,6 +116,20 @@
   services.fstrim.enable   = true;
   services.earlyoom.enable = true;
   boot.tmp.cleanOnBoot     = true;
+  security.sudo.execWheelOnly = true;
+  networking.firewall.allowPing = false;
+  boot.kernel.sysctl = {
+  "kernel.dmesg_restrict"                  = 1;
+  "kernel.kptr_restrict"                   = 2;
+  "kernel.unprivileged_bpf_disabled"       = 1;
+  "net.core.bpf_jit_harden"                = 2;
+  "net.ipv4.conf.all.rp_filter"            = 2;
+  "net.ipv4.conf.default.rp_filter"        = 2;
+  "net.ipv4.conf.all.accept_redirects"     = 0;
+  "net.ipv4.conf.default.accept_redirects" = 0;
+  "net.ipv6.conf.all.accept_redirects"     = 0;
+  "net.ipv4.conf.all.send_redirects"       = 0;
+  };
   programs.fuse.userAllowOther = true;
   programs.gnupg.agent.enable  = true;
   networking.stevenblack.enable = true;
@@ -148,6 +168,7 @@
   environment.systemPackages = with pkgs; [
     nautilus
     git
+    vesktop
     firefox
     google-chrome
     xwayland-satellite
@@ -173,7 +194,6 @@
     scrcpy
     android-tools
     sushi
-    file-roller
     loupe
     celluloid
     mpv
@@ -198,15 +218,8 @@
     curl
     wget
     vulkan-tools
-    winetricks
-    wineWow64Packages.stable
-    (bottles.override { removeWarningPopup = true; })
-    libreoffice-fresh
-    amberol
-    transmission_4-gtk
     rclone
     restic
-    remmina
     freerdp
 
       (pkgs.writeShellScriptBin "nl-adjust" ''
@@ -246,6 +259,7 @@
             "tray"
             "notifications"
             "clipboard"
+            "privacy"
             "network"
             "bluetooth"
             "volume"
@@ -283,7 +297,6 @@
           polkit_agent = true;
           launcher.default_view = "all";
           panel = {
-            launcher_sort_by_usage = false;
             transparency_mode      = "soft";
           };
           screen_corners = {
@@ -623,6 +636,10 @@
           honor-xdg-activation-with-invalid-serial
       }
       screenshot-path "~/screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+      window-rule {
+          match app-id="org.keepassxc.KeePassXC"
+          block-out-from "screencast"
+      }
       spawn-at-startup "udiskie" "-t"
       spawn-at-startup "noctalia"
       spawn-at-startup "xwayland-satellite"
