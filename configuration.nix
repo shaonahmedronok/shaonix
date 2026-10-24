@@ -361,7 +361,7 @@
         wallpaper = {
           enabled = true;
           directory = "/home/shaonix/Wallpapers";
-          default.path = "/etc/nixos/wallpaper.jpg";
+          default.path = "${pkgs.runCommand "plain.png" { nativeBuildInputs = [ pkgs.imagemagick ]; } ''magick -size 64x64 xc:'#FDF6E3' $out''}";
         };
       };
     };
@@ -396,7 +396,7 @@
               "red": "#cc241d",
               "green": "#98971a",
               "yellow": "#d79921",
-              "blue": "#458588",
+              "blue": "#000000",
               "magenta": "#b16286",
               "cyan": "#689d6a",
               "white": "#a89984"
@@ -442,7 +442,7 @@
               "red": "#cc241d",
               "green": "#98971a",
               "yellow": "#d79921",
-              "blue": "#458588",
+              "blue": "#000000",
               "magenta": "#b16286",
               "cyan": "#689d6a",
               "white": "#a89984"
@@ -464,18 +464,18 @@
     xdg.configFile."noctalia/palettes/Cream.json".text = ''
       {
         "dark": {
-          "mPrimary": "#458588",
+          "mPrimary": "#000000",
           "mOnPrimary": "#FDF6E3",
-          "mSecondary": "#689D6A",
+          "mSecondary": "#000000",
           "mOnSecondary": "#FDF6E3",
-          "mTertiary": "#B16286",
+          "mTertiary": "#000000",
           "mOnTertiary": "#FDF6E3",
-          "mError": "#CC241D",
+          "mError": "#000000",
           "mOnError": "#FDF6E3",
           "mSurface": "#FDF6E3",
           "mOnSurface": "#000000",
           "mSurfaceVariant": "#EEE8D5",
-          "mOnSurfaceVariant": "#3C3836",
+          "mOnSurfaceVariant": "#000000",
           "mOutline": "#D9D3C3",
           "mShadow": "#B8B2A2",
           "mHover": "#E6DFC8",
@@ -489,39 +489,39 @@
             "selectionFg": "#000000",
             "normal": {
               "black": "#000000",
-              "red": "#CC241D",
-              "green": "#98971A",
-              "yellow": "#D79921",
-              "blue": "#458588",
-              "magenta": "#B16286",
-              "cyan": "#689D6A",
+              "red": "#000000",
+              "green": "#000000",
+              "yellow": "#000000",
+              "blue": "#000000",
+              "magenta": "#000000",
+              "cyan": "#000000",
               "white": "#D9D3C3"
             },
             "bright": {
-              "black": "#555555",
-              "red": "#9D0006",
-              "green": "#79740E",
-              "yellow": "#B57614",
-              "blue": "#076678",
-              "magenta": "#8F3F71",
-              "cyan": "#427B58",
+              "black": "#000000",
+              "red": "#000000",
+              "green": "#000000",
+              "yellow": "#000000",
+              "blue": "#000000",
+              "magenta": "#000000",
+              "cyan": "#000000",
               "white": "#EEE8D5"
             }
           }
         },
         "light": {
-          "mPrimary": "#458588",
+          "mPrimary": "#000000",
           "mOnPrimary": "#FDF6E3",
-          "mSecondary": "#689D6A",
+          "mSecondary": "#000000",
           "mOnSecondary": "#FDF6E3",
-          "mTertiary": "#B16286",
+          "mTertiary": "#000000",
           "mOnTertiary": "#FDF6E3",
-          "mError": "#CC241D",
+          "mError": "#000000",
           "mOnError": "#FDF6E3",
           "mSurface": "#FDF6E3",
           "mOnSurface": "#000000",
           "mSurfaceVariant": "#EEE8D5",
-          "mOnSurfaceVariant": "#3C3836",
+          "mOnSurfaceVariant": "#000000",
           "mOutline": "#D9D3C3",
           "mShadow": "#B8B2A2",
           "mHover": "#E6DFC8",
@@ -535,22 +535,22 @@
             "selectionFg": "#000000",
             "normal": {
               "black": "#000000",
-              "red": "#CC241D",
-              "green": "#98971A",
-              "yellow": "#D79921",
-              "blue": "#458588",
-              "magenta": "#B16286",
-              "cyan": "#689D6A",
+              "red": "#000000",
+              "green": "#000000",
+              "yellow": "#000000",
+              "blue": "#000000",
+              "magenta": "#000000",
+              "cyan": "#000000",
               "white": "#D9D3C3"
             },
             "bright": {
-              "black": "#555555",
-              "red": "#9D0006",
-              "green": "#79740E",
-              "yellow": "#B57614",
-              "blue": "#076678",
-              "magenta": "#8F3F71",
-              "cyan": "#427B58",
+              "black": "#000000",
+              "red": "#000000",
+              "green": "#000000",
+              "yellow": "#000000",
+              "blue": "#000000",
+              "magenta": "#000000",
+              "cyan": "#000000",
               "white": "#EEE8D5"
             }
           }
@@ -642,12 +642,12 @@
           }
           focus-ring {
               width 3
-              active-color   "#458588"
+              active-color   "#000000"
               inactive-color "#D9D3C3"
           }
           border {
               width 3
-              active-color   "#458588"
+              active-color   "#000000"
               inactive-color "#D9D3C3"
           }
       }
@@ -778,6 +778,16 @@ programs.alacritty = {
           background = "#FDF6E3";
           foreground = "#000000";
         };
+        colors.cursor    = { text = "#FDF6E3"; cursor = "#000000"; };
+        colors.selection = { text = "#FDF6E3"; background = "#000000"; };
+        colors.normal = {
+          black = "#000000"; red = "#000000"; green = "#000000"; yellow = "#000000";
+          blue  = "#000000"; magenta = "#000000"; cyan = "#000000"; white = "#D9D3C3";
+        };
+        colors.bright = {
+          black = "#000000"; red = "#000000"; green = "#000000"; yellow = "#000000";
+          blue  = "#000000"; magenta = "#000000"; cyan = "#000000"; white = "#EEE8D5";
+        };
       };
     };
     programs.helix = {
@@ -785,7 +795,25 @@ programs.alacritty = {
       defaultEditor = true;
       settings.editor.line-number        = "relative";
       settings.editor.clipboard-provider = "wayland";
-      settings.theme = "papercolor-light";
+      settings.theme = "bw";
+      themes.bw = {
+        "ui.background"          = { bg = "#FDF6E3"; fg = "#000000"; };
+        "ui.text"                = "#000000";
+        "ui.cursor"              = { bg = "#000000"; fg = "#FDF6E3"; };
+        "ui.cursor.primary"      = { bg = "#000000"; fg = "#FDF6E3"; };
+        "ui.selection"           = { bg = "#D9D3C3"; };
+        "ui.cursorline.primary"  = { bg = "#EEE8D5"; };
+        "ui.linenr"              = "#000000";
+        "ui.linenr.selected"     = { fg = "#000000"; modifiers = [ "bold" ]; };
+        "ui.statusline"          = { bg = "#D9D3C3"; fg = "#000000"; };
+        "ui.statusline.inactive" = { bg = "#EEE8D5"; fg = "#000000"; };
+        "ui.popup"               = { bg = "#EEE8D5"; fg = "#000000"; };
+        "ui.menu"                = { bg = "#EEE8D5"; fg = "#000000"; };
+        "ui.menu.selected"       = { bg = "#000000"; fg = "#FDF6E3"; };
+        "ui.virtual"             = "#D9D3C3";
+        keyword                  = { modifiers = [ "bold" ]; };
+        comment                  = { modifiers = [ "italic" ]; };
+      };
       settings.editor.cursorline = true;
       settings.editor.soft-wrap.enable = true;
       settings.editor.end-of-line-diagnostics = "error";
