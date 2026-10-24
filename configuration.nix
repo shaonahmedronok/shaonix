@@ -82,6 +82,25 @@
   services.udisks2.enable             = true;
   # ---- extras merged from your pasted configs (adapted) ----
   programs.dconf.enable = true;
+  i18n.inputMethod = {
+    enable = true;
+    type   = "fcitx5";
+    fcitx5 = {
+      waylandFrontend = true;
+      addons = with pkgs; [ fcitx5-mozc fcitx5-gtk fcitx5-openbangla-keyboard ];
+      settings.inputMethod = {
+        GroupOrder."0" = "Default";
+        "Groups/0" = {
+          Name = "Default";
+          "Default Layout" = "us";
+          DefaultIM = "mozc";
+        };
+        "Groups/0/Items/0".Name = "keyboard-us";
+        "Groups/0/Items/1".Name = "mozc";
+        "Groups/0/Items/2".Name = "openbangla";        
+      };
+    };
+  };
   environment.pathsToLink = [ "/share/thumbnailers" ];
   services.dbus.packages = [ pkgs.sushi ];
   programs.nix-ld = {
@@ -141,9 +160,11 @@
     pkgs.noto-fonts
     pkgs.noto-fonts-color-emoji
     pkgs.liberation_ttf
+    pkgs.noto-fonts-cjk-sans
+    pkgs.ipafont
   ];
-  fonts.fontconfig.defaultFonts.monospace = [ "Iosevka Semibold" ];
-  fonts.fontconfig.defaultFonts.sansSerif = [ "Iosevka Semibold" ];
+  fonts.fontconfig.defaultFonts.monospace = [ "Iosevka Semibold" "Noto Sans Mono CJK JP" "Noto Sans Bengali" ];
+  fonts.fontconfig.defaultFonts.sansSerif = [ "Inter" "Noto Sans Bengali" "Noto Sans CJK JP" "Iosevka Semibold" ];
   swapDevices = [{
     device   = "/var/lib/swapfile";
     size     = 8192;
@@ -670,6 +691,7 @@
       }
       spawn-at-startup "udiskie" "-t"
       spawn-at-startup "noctalia"
+      spawn-at-startup "fcitx5" "-d"
       spawn-at-startup "xwayland-satellite"
       binds {
           Mod+Return { spawn "alacritty"; }
