@@ -1,16 +1,14 @@
-# Generate the machine-specific hardware configuration
+# Install NixOS minimal, then generate hardware config
 sudo nixos-generate-config
 
-# Clone your flake repository
+# Clone repo
 git clone https://github.com/shaonahmedronok/shaonix /tmp/nixconf
 
-# Copy the hardware configuration into your repo folder
+# Copy hardware configuration into repo folder
 sudo cp /etc/nixos/hardware-configuration.nix /tmp/nixconf/
 
-# Navigate into the repo directory, update flakes, and rebuild
+# Rebuild
 cd /tmp/nixconf
 sudo nix flake update
 sudo nixos-rebuild switch --flake /tmp/nixconf#shaonix
-
-# Clean up old generations keeping the last 3
 nh clean all --keep 3
