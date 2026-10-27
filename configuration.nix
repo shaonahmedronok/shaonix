@@ -21,7 +21,8 @@
   security.rtkit.enable          = true;
   hardware.graphics = {
     enable        = true;
-    extraPackages = [ pkgs.intel-media-driver pkgs.intel-vaapi-driver ];
+    enable32Bit   = true;
+    extraPackages = [ pkgs.intel-media-driver pkgs.intel-vaapi-driver pkgs.vpl-gpu-rt ];
   };
   hardware.cpu.intel.updateMicrocode = true;
   hardware.bluetooth = {
@@ -34,6 +35,16 @@
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
   hardware.i2c.enable                = true;
+  fileSystems."/data" = {
+    device  = "/dev/disk/by-uuid/17cf1740-c8e5-49b1-be2e-762f9a8f440a";
+    fsType  = "ext4";
+    options = [ "nofail" ];
+  };
+
+  services.jellyfin = {
+    enable       = true;
+    openFirewall = true;
+  };
   services.pipewire = {
     enable             = true;
     alsa.enable        = true;
@@ -121,14 +132,6 @@
     enable       = true;
     openFirewall = true;
   };
-  programs.obs-studio.enable = true;
-  programs.nh = {
-    enable = true;
-    clean = {
-      enable    = true;
-      extraArgs = "--keep-since 7d --keep 5";
-    };
-  };
   nix.optimise.automatic = true;
   services.printing.enable = true;
   services.flatpak.enable  = true;
@@ -188,9 +191,8 @@
   };
   environment.systemPackages = with pkgs; [
     nautilus
+    yazi
     git
-    vesktop
-    firefox
     google-chrome
     xwayland-satellite
     qt5.qtwayland
@@ -211,7 +213,6 @@
     keepassxc
     evtest
     imv
-    zathura
     scrcpy
     android-tools
     sushi
@@ -262,6 +263,14 @@
     bluez        # gives you bluetoothctl, btmon, hcitool, sdptool
     bluez-tools  # bt-device, bt-adapter, bt-obex (file transfer!)
 ];
+  programs.obs-studio = {
+    enable = true;
+    enableVirtualCamera = true;
+    plugins = with pkgs.obs-studio-plugins; [
+      obs-pipewire-audio-capture
+      obs-backgroundremoval
+    ];
+  };
   home-manager.users.shaonix = {
     imports = [ inputs.noctalia.homeModules.default ];
     programs.noctalia = {
@@ -583,14 +592,18 @@
       enable = true;
       defaultApplications = {
         "inode/directory"                    = [ "org.gnome.Nautilus.desktop" ];
-        "application/x-gnome-saved-search" = [ "org.gnome.Nautilus.desktop" ];
+        "application/x-gnome-saved-search"   = [ "org.gnome.Nautilus.desktop" ];
         "text/plain"                         = [ "helix.desktop" ];
         "text/x-nix"                         = [ "helix.desktop" ];
         "text/markdown"                      = [ "helix.desktop" ];
         "application/json"                   = [ "helix.desktop" ];
         "text/x-shellscript"                 = [ "helix.desktop" ];
         "text/x-org"                         = [ "helix.desktop" ];
-        "application/pdf"                    = [ "zathura.desktop" ];
+        "application/pdf"                    = [ "org.pwmt.zathura.desktop" ];
+        "application/xhtml+xml"              = [ "firefox.desktop" ];
+        "text/html"                          = [ "firefox.desktop" ];
+        "x-scheme-handler/http"              = [ "firefox.desktop" ];
+        "x-scheme-handler/https"             = [ "firefox.desktop" ];
       };
     };
     xdg.configFile."niri/config.kdl".text = ''
@@ -776,6 +789,110 @@ programs.alacritty = {
         };
       };
     };
+    programs.vesktop = {
+      enable = true;
+      settings = {
+        arRPC = true;
+        hardwareAcceleration = true;
+        minimizeToTray = true;
+        checkUpdates = true;
+        tray = true;
+        discordBranch = "canary";
+      };
+      vencord.settings = {
+        autoUpdate = true;
+        autoUpdateNotification = true;
+        notifyAboutUpdates = false;
+        plugins = {
+          MessageLogger = {
+            enabled = true;
+            ignoreSelf = true;
+          };
+          FixSpotifyEmbeds.enabled = true;
+          SpotifyControls.enabled = true;
+          SpotifyCrack.enabled = true;
+          SilentTyping.enabled = true;
+          USRBG.enabled = true;
+          ValidUser.enabled = true;
+          YoutubeAdblock.enabled = true;
+          ShowHiddenChannels.enabled = true;
+          PlatformIndicators.enabled = true;
+          Translate.enabled = true;
+          FakeNitro.enabled = true;
+        };
+      };
+    };
+    programs.zathura = {
+      enable = true;
+      options = {
+        adjust-open           = "best-fit";
+        database              = "sqlite";
+        page-padding          = 4;
+        scroll-page-aware     = true;
+        selection-clipboard   = "clipboard";
+        statusbar-home-tilde  = true;
+        window-title-basename = true;
+      };
+    };
+    programs.firefox = {
+      enable = true;
+      profiles.default = {
+        search = {
+          force          = true;
+          default        = "ddg";
+          privateDefault = "ddg";
+          engines = {
+            "Nix Packages" = {
+              urls = [{
+                template = "https://search.nixos.org/packages";
+                params = [
+                  { name = "channel"; value = "unstable"; }
+                  { name = "query";   value = "{searchTerms}"; }
+                ];
+              }];
+              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "@np" ];
+            };
+            "Nix Options" = {
+              urls = [{
+                template = "https://search.nixos.org/options";
+                params = [
+                  { name = "channel"; value = "unstable"; }
+                  { name = "query";   value = "{searchTerms}"; }
+                ];
+              }];
+              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "@no" ];
+            };
+            "NixOS Wiki" = {
+              urls = [{
+                template = "https://wiki.nixos.org/w/index.php";
+                params = [{ name = "search"; value = "{searchTerms}"; }];
+              }];
+              icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "@nw" ];
+            };
+          };
+        };
+      };
+      policies = {
+        DisableTelemetry      = true;
+        DisableFormHistory    = true;
+        DisablePasswordReveal = true;
+        ExtensionSettings = {
+          "uBlock0@raymondhill.net" = {
+            install_url       = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
+            installation_mode = "force_installed";
+            private_browsing  = true;
+          };
+          "{d7742d87-e61d-4b78-b8a1-b469842139fa}" = {
+            install_url       = "https://addons.mozilla.org/firefox/downloads/latest/vimium-ff/latest.xpi";
+            installation_mode = "force_installed";
+            private_browsing  = true;
+          };
+        };
+      };
+    };  
     programs.helix = {
       enable        = true;
       defaultEditor = true;
