@@ -18,6 +18,7 @@
   };
   security.pam.services.hyprlock = {};
   security.polkit.enable         = true;
+  environment.shellAliases.ls = "ls --color=tty -lah";
   security.rtkit.enable          = true;
   hardware.graphics = {
     enable        = true;
@@ -45,6 +46,8 @@
     enable       = true;
     openFirewall = true;
   };
+  systemd.services.jellyfin.unitConfig.RequiresMountsFor = "/data";
+  users.users.jellyfin.extraGroups = [ "render" "video" ];
   services.pipewire = {
     enable             = true;
     alsa.enable        = true;
@@ -128,6 +131,7 @@
     nssmdns4   = true;
   };
   services.tailscale.enable = true;
+  services.tailscale.openFirewall = true;
   programs.localsend = {
     enable       = true;
     openFirewall = true;
@@ -846,7 +850,7 @@ programs.alacritty = {
               urls = [{
                 template = "https://search.nixos.org/packages";
                 params = [
-                  { name = "channel"; value = "unstable"; }
+                  { name = "channel"; value = "26.05"; }
                   { name = "query";   value = "{searchTerms}"; }
                 ];
               }];
@@ -857,7 +861,7 @@ programs.alacritty = {
               urls = [{
                 template = "https://search.nixos.org/options";
                 params = [
-                  { name = "channel"; value = "unstable"; }
+                  { name = "channel"; value = "26.05"; }
                   { name = "query";   value = "{searchTerms}"; }
                 ];
               }];
@@ -882,11 +886,6 @@ programs.alacritty = {
         ExtensionSettings = {
           "uBlock0@raymondhill.net" = {
             install_url       = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
-            installation_mode = "force_installed";
-            private_browsing  = true;
-          };
-          "{d7742d87-e61d-4b78-b8a1-b469842139fa}" = {
-            install_url       = "https://addons.mozilla.org/firefox/downloads/latest/vimium-ff/latest.xpi";
             installation_mode = "force_installed";
             private_browsing  = true;
           };
