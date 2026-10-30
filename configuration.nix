@@ -140,6 +140,15 @@
   services.printing.enable = true;
   services.flatpak.enable  = true;
   services.fstrim.enable   = true;
+  services.fwupd.enable = true;
+  services.smartd = {
+    enable     = true;
+    autodetect = true;
+  };
+  networking.networkmanager.wifi.powersave = false;
+  system.configurationRevision = inputs.self.rev or inputs.self.dirtyRev or null;
+  nix.registry.nixpkgs.flake   = inputs.nixpkgs;
+  nix.nixPath                  = [ "nixpkgs=${inputs.nixpkgs}" ];
   services.earlyoom.enable = true;
   boot.tmp.cleanOnBoot     = true;
   security.sudo.execWheelOnly = true;
@@ -197,7 +206,6 @@
     nautilus
     yazi
     git
-    google-chrome
     xwayland-satellite
     qt5.qtwayland
     qt6.qtwayland
@@ -262,10 +270,19 @@
       [ "$new" -gt "$max" ] && new=$max
       printf '[nightlight]\ntemperature_night = %s\n' "$new" > "$f"
     '')
-  
+      (pkgs.writeShellScriptBin "webcam" ''
+      exec ${pkgs.mpv}/bin/mpv \
+        --profile=low-latency --untimed --no-cache \
+        --no-osc --no-osd-bar --no-input-default-bindings \
+        --autofit=320x240 \
+        --force-window=yes --title=webcam --wayland-app-id=webcam \
+        av://v4l2:/dev/video10
+    '')
+    inputs.niri-float-sticky.packages.${pkgs.stdenv.hostPlatform.system}.default
     usbutils
     bluez        # gives you bluetoothctl, btmon, hcitool, sdptool
     bluez-tools  # bt-device, bt-adapter, bt-obex (file transfer!)
+    smartmontools
 ];
   programs.obs-studio = {
     enable = true;
@@ -274,6 +291,25 @@
       obs-pipewire-audio-capture
       obs-backgroundremoval
     ];
+  };
+  # Two virtual cameras: video10 = phone, video13 = OBS
+  boot.extraModprobeConfig = lib.mkForce ''
+    options v4l2loopback devices=2 video_nr=10,13 card_label="Phone Cam,OBS Virtual Camera" exclusive_caps=1,1
+  '';
+
+  systemd.user.services.phonecam = {
+    description = "Phone camera to virtual webcam";
+    wantedBy = [ "default.target" ];
+    serviceConfig = {
+      ExecStart = ''
+        ${pkgs.ffmpeg}/bin/ffmpeg -loglevel warning -fflags nobuffer \
+          -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 \
+          -i http://192.168.0.101:8080/video \
+          -vf format=yuv420p -f v4l2 /dev/video10
+      '';
+      Restart = "always";
+      RestartSec = 5;
+    };
   };
   home-manager.users.shaonix = {
     imports = [ inputs.noctalia.homeModules.default ];
@@ -693,8 +729,16 @@
           match app-id="org.keepassxc.KeePassXC"
           block-out-from "screencast"
       }
+      window-rule {
+          match app-id="webcam"
+          open-floating true
+          default-column-width { fixed 320; }
+          default-window-height { fixed 240; }
+          default-floating-position x=20 y=20 relative-to="bottom-right"
+      }
       spawn-at-startup "udiskie" "-t"
       spawn-at-startup "noctalia"
+      spawn-at-startup "niri-float-sticky" "-app-id" "webcam"
       spawn-at-startup "fcitx5" "-d"
       spawn-at-startup "xwayland-satellite"
       binds {
@@ -716,6 +760,8 @@
           Mod+C         { close-window; }
           Mod+F         { maximize-column; }
           Mod+Shift+Space { toggle-window-floating; }
+          Mod+Shift+V { spawn "webcam"; }
+          Mod+Shift+F { fullscreen-window; }
           Mod+H     { focus-column-left; }
           Mod+J     { focus-window-or-workspace-down; }
           Mod+K     { focus-window-or-workspace-up; }
