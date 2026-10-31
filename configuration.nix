@@ -4,15 +4,15 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages                  = pkgs.linuxPackages_latest;
   boot.kernelModules                   = [ "i2c-dev" ];
-  networking.hostName              = "shaonix";
+  networking.hostName              = "shaonish";
   networking.networkmanager.enable = true;
   systemd.services.NetworkManager-wait-online.enable = false;
   networking.firewall.enable       = true;
   time.timeZone      = "Asia/Dhaka";
   i18n.defaultLocale = "en_US.UTF-8";
-  users.users.shaonix = {
+  users.users.shaonish = {
     isNormalUser = true;
-    description  = "shaonix";
+    description  = "shaonish";
     extraGroups  = [ "networkmanager" "wheel" "video" "input" "storage" "i2c" ];
     shell        = pkgs.bash;
   };
@@ -188,9 +188,9 @@
   }];
   zramSwap.enable = true;
   systemd.tmpfiles.rules = [
-    "d /home/shaonix/Wallpapers 0755 shaonix users -"
-    "d /home/shaonix/screenshots 0755 shaonix users -"
-    "f /home/shaonix/.config/noctalia/nightlight.toml 0644 shaonix users - [nightlight]\\ntemperature_night = 3000\\n"
+    "d /home/shaonish/Wallpapers 0755 shaonish users -"
+    "d /home/shaonish/screenshots 0755 shaonish users -"
+    "f /home/shaonish/.config/noctalia/nightlight.toml 0644 shaonish users - [nightlight]\\ntemperature_night = 3000\\n"
   ];
   environment.variables.QT_QPA_PLATFORMTHEME = lib.mkForce "gtk2";
   environment.sessionVariables = {
@@ -311,7 +311,7 @@
       RestartSec = 5;
     };
   };
-  home-manager.users.shaonix = {
+  home-manager.users.shaonish = {
     imports = [ inputs.noctalia.homeModules.default ];
     programs.noctalia = {
       enable = true;
@@ -396,7 +396,7 @@
         dock.enabled = false;
         wallpaper = {
           enabled = true;
-          directory = "/home/shaonix/Wallpapers";
+          directory = "/home/shaonish/Wallpapers";
           default.path = "${pkgs.runCommand "plain.png" { nativeBuildInputs = [ pkgs.imagemagick ]; } ''magick -size 64x64 xc:'#FDF6E3' $out''}";
         };
       };

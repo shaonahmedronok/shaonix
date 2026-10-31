@@ -14,7 +14,7 @@
   };
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
  {
-    nixosConfigurations.shaonix = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.shaonish = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };
       modules = [
